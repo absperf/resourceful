@@ -43,6 +43,7 @@ module Resourceful
       conn_class = proxy_details ? Net::HTTP.Proxy(*proxy_details) : Net::HTTP
       conn = conn_class.new(uri.host, uri.port || (https ? 443 : 80))
       conn.use_ssl = https
+      conn.read_timeout = 600
       begin 
         conn.start
         res = if body
