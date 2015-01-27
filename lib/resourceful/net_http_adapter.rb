@@ -20,6 +20,9 @@ end
 module Resourceful
 
   class NetHttpAdapter
+
+    attr_accessor :verify_mode
+
     # Make an HTTP request using the standard library net/http.
     #
     # Will use a proxy defined in the http_proxy environment variable, if set.
@@ -34,7 +37,7 @@ module Resourceful
       # TRACE is the only method in which an entity is forbidden
       unless :trace == method then
         body = body ? body.read : ""
-        header[:content_length] = body.size 
+        header[:content_length] = body.size
       end
 
       req = net_http_request_class(method).new(uri.absolute_path)
@@ -43,8 +46,9 @@ module Resourceful
       conn_class = proxy_details ? Net::HTTP.Proxy(*proxy_details) : Net::HTTP
       conn = conn_class.new(uri.host, uri.port || (https ? 443 : 80))
       conn.use_ssl = https
+      conn.verify_mode = verify_mode
       conn.read_timeout = 600
-      begin 
+      begin
         conn.start
         res = if body
                 conn.request(req, body)
@@ -60,7 +64,7 @@ module Resourceful
         res.body
       ]
     ensure
-      
+
     end
 
     private
